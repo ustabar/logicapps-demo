@@ -1,0 +1,48 @@
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  cosmosdbAccessKey: ''
+  ehConnectionString: ''
+  AzureSubscrptionConnection: ''
+  infraResourceGroupName: 'DevSub01_EventHubs-LogicApps-INT_RG'
+  logicAppResourceGroupName: 'DevSub01_EventHubs-LogicApps-INT_RG'
+  location: 'Central US'
+
+steps:
+- task: DownloadPipelineArtifact@2
+  displayName: 'Download Pipeline Artifacts'
+  inputs:
+    buildType: 'current'
+    targetPath: '$(System.ArtifactsDirectory)/'
+
+- task: AzureResourceGroupDeployment@2
+  displayName: 'Azure Resource Group Deployment - Infrastructure'
+  inputs:
+    azureSubscription: '$(AzureSubscrptionConnection)'
+    resourceGroupName: '$(infraResourceGroupName)'
+    location: '$(location)'
+    csmFile: '$(System.ArtifactsDirectory)/drop/LogicAppsWithEventHub/azuredeploy.json'
+    csmParametersFile: '$(System.ArtifactsDirectory)/drop/LogicAppsWithEventHub/parameters/azuredeploy.parameters.int.json'
+    deploymentOutputs: deploymentOutput
+
+- powershell: |
+   $result = ConvertFrom-Json $ENV:deploymentOutput
+   
+   $ehConnectionString = $result.eventhubsConnectionString.value
+   $cosmosdbAccessKey = $result.documentdbAccessKey.value
+   
+   Write-Host "##vso[task.setvariable variable=cosmosdbAccessKey]$cosmosdbAccessKey"
+   Write-Host "##vso[task.setvariable variable=ehConnectionString]$ehConnectionString"
+  displayName: 'PowerShell Script - Parse Output'
+
+- task: AzureResourceGroupDeployment@2
+  displayName: 'Azure Resource Group Deployment - Logic App'
+  inputs:
+    azureSubscription: '$(AzureSubscrptionConnection)'
+    resourceGroupName: '$(logicAppResourceGroupName)'
+    location: '$(location)'
+    csmFile: '$(System.ArtifactsDirectory)/drop/LogicAppsWithEventHub/LogicApp.json'
+    csmParametersFile: '$(System.ArtifactsDirectory)/drop/LogicAppsWithEventHub/parameters/logicapp.parameters.int.json'
+    overrideParameters: '-documentdbAccessKey $(cosmosdbAccessKey) -eventhubsConnectionString $(ehConnectionString)'

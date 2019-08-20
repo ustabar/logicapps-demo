@@ -1,0 +1,511 @@
+{
+    "source": 2,
+    "revision": 11,
+    "description": null,
+    "createdBy": {
+        "displayName": "Brian"
+    },
+    "createdOn": "2019-08-15T16:27:54.750Z",
+    "modifiedBy": {
+        "displayName": "Brian"
+    },
+    "modifiedOn": "2019-08-15T18:42:46.140Z",
+    "isDeleted": false,
+    "lastRelease": {
+        "id": 227,
+        "name": "Release-7",
+        "artifacts": [],
+        "_links": {},
+        "description": "",
+        "releaseDefinition": {
+            "id": 15,
+            "projectReference": null,
+            "_links": {}
+        },
+        "createdOn": "2019-08-15T18:42:48.993Z",
+        "createdBy": {
+            "displayName": "Brian"
+        }
+    },
+    "variables": {
+        "cosmosdbAccessKey": {
+            "value": ""
+        },
+        "deploymentOutput": {
+            "value": ""
+        },
+        "ehConnectionString": {
+            "value": ""
+        }
+    },
+    "variableGroups": [
+        5
+    ],
+    "environments": [
+        {
+            "id": 20,
+            "name": "UAT Environment ",
+            "rank": 1,
+            "owner": {
+                "displayName": "Brian"
+            },
+            "variables": {},
+            "variableGroups": [],
+            "preDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 61
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 1
+                }
+            },
+            "postDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 65
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 2
+                }
+            },
+            "deployPhases": [
+                {
+                    "deploymentInput": {
+                        "parallelExecution": {
+                            "parallelExecutionType": 0
+                        },
+                        "agentSpecification": {
+                            "identifier": "vs2017-win2016"
+                        },
+                        "skipArtifactsDownload": false,
+                        "artifactsDownloadInput": {
+                            "downloadInputs": [
+                                {
+                                    "alias": "_LogicApp",
+                                    "artifactType": "Build",
+                                    "artifactDownloadMode": "All",
+                                    "artifactItems": []
+                                }
+                            ]
+                        }
+                    },
+                    "rank": 1,
+                    "phaseType": 1,
+                    "name": "Agent job",
+                    "refName": null,
+                    "workflowTasks": [
+                        {
+                            "environment": {},
+                            "version": "2.*",
+                            "name": "Azure Resource Group Deployment - Infrastructure",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "action": "Create Or Update Resource Group",
+                                "resourceGroupName": "DevSub01_EventHubs-Infrastructure-UAT_RG",
+                                "location": "Central US",
+                                "templateLocation": "Linked artifact",
+                                "csmFileLink": "",
+                                "csmParametersFileLink": "",
+                                "csmFile": "$(System.DefaultWorkingDirectory)/_LogicApp/drop/LogicAppsWithEventHub/azuredeploy.json",
+                                "csmParametersFile": "$(System.DefaultWorkingDirectory)/_LogicApp/drop/LogicAppsWithEventHub/parameters/azuredeploy.parameters.uat.json",
+                                "overrideParameters": "",
+                                "deploymentMode": "Incremental",
+                                "enableDeploymentPrerequisites": "None",
+                                "deploymentGroupEndpoint": "",
+                                "project": "",
+                                "deploymentGroupName": "",
+                                "copyAzureVMTags": "true",
+                                "runAgentServiceAsUser": "false",
+                                "userName": "",
+                                "password": "",
+                                "outputVariable": "",
+                                "deploymentName": "",
+                                "deploymentOutputs": "deploymentOutput",
+                                "addSpnToEnvironment": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "version": "2.*",
+                            "name": "PowerShell Script - Parse Output",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "targetType": "inline",
+                                "filePath": "",
+                                "arguments": "",
+                                "script": "$result = ConvertFrom-Json $ENV:deploymentOutput\n\n$ehConnectionString = $result.eventhubsConnectionString.value\n$cosmosdbAccessKey = $result.documentdbAccessKey.value\n\nWrite-Host \"##vso[task.setvariable variable=cosmosdbAccessKey]$cosmosdbAccessKey\"\nWrite-Host \"##vso[task.setvariable variable=ehConnectionString]$ehConnectionString\"",
+                                "errorActionPreference": "stop",
+                                "failOnStderr": "false",
+                                "ignoreLASTEXITCODE": "false",
+                                "pwsh": "false",
+                                "workingDirectory": ""
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "version": "2.*",
+                            "name": "Azure Resource Group Deployment - Logic App",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "action": "Create Or Update Resource Group",
+                                "resourceGroupName": "DevSub01_EventHubs-LogicApps-UAT_RG",
+                                "location": "Central US",
+                                "templateLocation": "Linked artifact",
+                                "csmFileLink": "",
+                                "csmParametersFileLink": "",
+                                "csmFile": "$(System.DefaultWorkingDirectory)/_LogicApp/drop/LogicAppsWithEventHub/LogicApp.json",
+                                "csmParametersFile": "$(System.DefaultWorkingDirectory)/_LogicApp/drop/LogicAppsWithEventHub/parameters/logicapp.parameters.uat.json",
+                                "overrideParameters": "-documentdbAccessKey $(cosmosdbAccessKey) -eventhubsConnectionString $(ehConnectionString)",
+                                "deploymentMode": "Incremental",
+                                "enableDeploymentPrerequisites": "None",
+                                "deploymentGroupEndpoint": "",
+                                "project": "",
+                                "deploymentGroupName": "",
+                                "copyAzureVMTags": "true",
+                                "runAgentServiceAsUser": "false",
+                                "userName": "",
+                                "password": "",
+                                "outputVariable": "",
+                                "deploymentName": "",
+                                "deploymentOutputs": "",
+                                "addSpnToEnvironment": "false"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "environmentOptions": {
+                "emailNotificationType": "OnlyOnFailure",
+                "emailRecipients": "release.environment.owner;release.creator",
+                "skipArtifactsDownload": false,
+                "timeoutInMinutes": 0,
+                "enableAccessToken": false,
+                "publishDeploymentStatus": true,
+                "badgeEnabled": false,
+                "autoLinkWorkItems": false,
+                "pullRequestDeploymentEnabled": false
+            },
+            "demands": [],
+            "conditions": [
+                {
+                    "name": "ReleaseStarted",
+                    "conditionType": 1,
+                    "value": ""
+                }
+            ],
+            "executionPolicy": {
+                "concurrencyCount": 1,
+                "queueDepthCount": 0
+            },
+            "schedules": [],
+            "currentRelease": {
+            },
+            "retentionPolicy": {
+                "daysToKeep": 30,
+                "releasesToKeep": 3,
+                "retainBuild": true
+            },
+            "processParameters": {},
+            "properties": {},
+            "preDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "postDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "environmentTriggers": []
+        },
+        {
+            "id": 21,
+            "name": "Production Environment ",
+            "rank": 2,
+            "owner": {
+                "displayName": "Brian"
+            },
+            "variables": {},
+            "variableGroups": [],
+            "preDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": false,
+                        "isNotificationOn": false,
+                        "approver": {
+                            "displayName": "Brian"
+                        },
+                        "id": 62
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": true,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 1
+                }
+            },
+            "postDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 66
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 2
+                }
+            },
+            "deployPhases": [
+                {
+                    "deploymentInput": {
+                        "parallelExecution": {
+                            "parallelExecutionType": 0
+                        },
+                        "agentSpecification": {
+                            "identifier": "vs2017-win2016"
+                        },
+                        "skipArtifactsDownload": false,
+                        "artifactsDownloadInput": {
+                            "downloadInputs": [
+                                {
+                                    "alias": "_LogicApp",
+                                    "artifactType": "Build",
+                                    "artifactDownloadMode": "All",
+                                    "artifactItems": []
+                                }
+                            ]
+                        },
+                        "demands": [],
+                        "enableAccessToken": false,
+                        "timeoutInMinutes": 0,
+                        "jobCancelTimeoutInMinutes": 1,
+                        "condition": "succeeded()",
+                        "overrideInputs": {}
+                    },
+                    "rank": 1,
+                    "phaseType": 1,
+                    "name": "Agent job",
+                    "refName": null,
+                    "workflowTasks": [
+                        {
+                            "environment": {},
+                            "version": "2.*",
+                            "name": "Azure Resource Group Deployment - Infrastructure",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "action": "Create Or Update Resource Group",
+                                "resourceGroupName": "DevSub01_EventHubs-Infrastructure_RG",
+                                "location": "Central US",
+                                "templateLocation": "Linked artifact",
+                                "csmFileLink": "",
+                                "csmParametersFileLink": "",
+                                "csmFile": "$(System.DefaultWorkingDirectory)/_LogicApp/drop/LogicAppsWithEventHub/azuredeploy.json",
+                                "csmParametersFile": "$(System.DefaultWorkingDirectory)/_LogicApp/drop/LogicAppsWithEventHub/parameters/azuredeploy.parameters.prd.json",
+                                "overrideParameters": "",
+                                "deploymentMode": "Incremental",
+                                "enableDeploymentPrerequisites": "None",
+                                "deploymentGroupEndpoint": "",
+                                "project": "",
+                                "deploymentGroupName": "",
+                                "copyAzureVMTags": "true",
+                                "runAgentServiceAsUser": "false",
+                                "userName": "",
+                                "password": "",
+                                "outputVariable": "",
+                                "deploymentName": "",
+                                "deploymentOutputs": "deploymentOutput",
+                                "addSpnToEnvironment": "false"
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "version": "2.*",
+                            "name": "PowerShell Script - Parse Output",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "targetType": "inline",
+                                "filePath": "",
+                                "arguments": "",
+                                "script": "$result = ConvertFrom-Json $ENV:deploymentOutput\n\n$ehConnectionString = $result.eventhubsConnectionString.value\n$cosmosdbAccessKey = $result.documentdbAccessKey.value\n\nWrite-Host \"##vso[task.setvariable variable=cosmosdbAccessKey]$cosmosdbAccessKey\"\nWrite-Host \"##vso[task.setvariable variable=ehConnectionString]$ehConnectionString\"",
+                                "errorActionPreference": "stop",
+                                "failOnStderr": "false",
+                                "ignoreLASTEXITCODE": "false",
+                                "pwsh": "false",
+                                "workingDirectory": ""
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "version": "2.*",
+                            "name": "Azure Resource Group Deployment - Logic App",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "action": "Create Or Update Resource Group",
+                                "resourceGroupName": "DevSub01_EventHubs-LogicApps_RG",
+                                "location": "Central US",
+                                "templateLocation": "Linked artifact",
+                                "csmFileLink": "",
+                                "csmParametersFileLink": "",
+                                "csmFile": "$(System.DefaultWorkingDirectory)/_LogicApp/drop/LogicAppsWithEventHub/LogicApp.json",
+                                "csmParametersFile": "$(System.DefaultWorkingDirectory)/_LogicApp/drop/LogicAppsWithEventHub/parameters/logicapp.parameters.prd.json",
+                                "overrideParameters": "-documentdbAccessKey $(cosmosdbAccessKey) -eventhubsConnectionString $(ehConnectionString)",
+                                "deploymentMode": "Incremental",
+                                "enableDeploymentPrerequisites": "None",
+                                "deploymentGroupEndpoint": "",
+                                "project": "",
+                                "deploymentGroupName": "",
+                                "copyAzureVMTags": "true",
+                                "runAgentServiceAsUser": "false",
+                                "userName": "",
+                                "password": "",
+                                "outputVariable": "",
+                                "deploymentName": "",
+                                "deploymentOutputs": "",
+                                "addSpnToEnvironment": "false"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "environmentOptions": {
+                "emailNotificationType": "OnlyOnFailure",
+                "emailRecipients": "release.environment.owner;release.creator",
+                "skipArtifactsDownload": false,
+                "timeoutInMinutes": 0,
+                "enableAccessToken": false,
+                "publishDeploymentStatus": true,
+                "badgeEnabled": false,
+                "autoLinkWorkItems": false,
+                "pullRequestDeploymentEnabled": false
+            },
+            "demands": [],
+            "conditions": [
+                {
+                    "name": "UAT Environment ",
+                    "conditionType": 2,
+                    "value": "4"
+                }
+            ],
+            "executionPolicy": {
+                "concurrencyCount": 1,
+                "queueDepthCount": 0
+            },
+            "schedules": [],
+            "retentionPolicy": {
+                "daysToKeep": 30,
+                "releasesToKeep": 3,
+                "retainBuild": true
+            },
+            "processParameters": {},
+            "properties": {},
+            "preDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "postDeploymentGates": {
+                "id": 0,
+                "gatesOptions": null,
+                "gates": []
+            },
+            "environmentTriggers": [],
+        }
+    ],
+    "artifacts": [
+        {
+            "type": "Build",
+            "alias": "_LogicApp",
+            "definitionReference": {
+            },
+            "isPrimary": true,
+            "isRetained": false
+        }
+    ],
+    "triggers": [],
+    "releaseNameFormat": "Release-$(rev:r)",
+    "tags": [],
+    "properties": {
+        "DefinitionCreationSource": {
+            "$type": "System.String",
+            "$value": "ReleaseClone"
+        },
+        "IntegrateJiraWorkItems": {
+            "$type": "System.String",
+            "$value": "false"
+        }
+    },
+    "id": 15,
+    "name": "Eventhub Release (Master)"
+}

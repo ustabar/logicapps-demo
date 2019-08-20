@@ -1,0 +1,15 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "eventHubName": {
+            "value": "bjdhubprd001"
+        },
+        "databaseAccountName": {
+            "value": "bjdprddb001"
+        },
+        "storageAccountName": {
+            "value": "bjdprdchgcap001"
+        }
+    }
+}

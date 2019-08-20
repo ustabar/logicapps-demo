@@ -1,0 +1,23 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - Source/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: CopyFiles@2
+    displayName: 'Copy Source to drop'
+    inputs:
+      SourceFolder: 'Source'
+      TargetFolder: 'drop'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: 'drop'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'

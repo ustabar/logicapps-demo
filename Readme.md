@@ -1,20 +1,4 @@
+# Logic Apps CI/CD Demo
 
-## Body
-```
-{
-  "PartitionKey": "@{triggerBody()?['ContentData']}",
-  "id": "@{triggerBody()?['ContentData']}",
-  "Offset": "@triggerBody()?['SystemProperties']?['Offset']",
-  "SeqNumber": "@triggerBody()?['SystemProperties']?['SequenceNumber']"
-}
-```
-
-## Headers
-```
-Partitionkey: "\"@{triggerBody()?['ContentData']}\"" //Don't forget the quotes! 
-```
-
-## Event Hubs Connections
-* Name: eventhubs
-* Connection String: Endpoint=sb://bjdgeopair001.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=RVU3cAhsUGk3OI/FJKVDcQd1kZpZo7heErsgNkrY+2k=
-* Hub Name: hub001
+This repo shows how to create a buid and release pipline for Azure Logic Apps.
+The Logic App simply takes a message off an Event Hub and places the event info into Azure Cosmos DB

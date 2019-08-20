@@ -50,37 +50,93 @@
         "definition": {
           "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
           "actions": {
-            "Create_or_update_document": {
-              "type": "ApiConnection",
-              "inputs": {
-                "host": {
-                  "connection": {
-                    "name": "@parameters('$connections')['documentdb']['connectionId']"
-                  }
-                },
-                "method": "post",
-                "body": {
-                  "Offset": "@triggerBody()?['SystemProperties']?['Offset']",
-                  "PartitionKey": "@{base64ToString(triggerBody()?['ContentData'])}",
-                  "SeqNumber": "@triggerBody()?['SystemProperties']?['SequenceNumber']",
-                  "id": " @{base64ToString(triggerBody()?['ContentData'])}"
-                },
-                "headers": {
-                  "x-ms-documentdb-raw-partitionkey": "\"@{base64ToString(triggerBody()?['ContentData'])}\""
-                },
-                "path": "/dbs/@{encodeURIComponent('sample')}/colls/@{encodeURIComponent('events')}/docs"
+            "Scope": {
+              "type": "Scope",
+              "actions": {
+                "Create_or_update_document": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['documentdb']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": {
+                      "Offset": "@triggerBody()?['SystemProperties']?['Offset']",
+                      "PartitionKey": "@{base64ToString(triggerBody()?['ContentData'])}",
+                      "SeqNumber": "@triggerBody()?['SystemProperties']?['SequenceNumber']",
+                      "id": " @{base64ToString(triggerBody()?['ContentData'])}"
+                    },
+                    "headers": {
+                      "x-ms-documentdb-raw-partitionkey": "\"@{base64ToString(triggerBody()?['ContentData'])}\""
+                    },
+                    "path": "/dbs/@{encodeURIComponent('sample')}/colls/@{encodeURIComponent('events')}/docs"
+                  },
+                  "runAfter": {}
+                }
               },
               "runAfter": {}
             },
-            "Terminate": {
-              "type": "Terminate",
-              "inputs": {
-                "runStatus": "Succeeded"
+            "Condition": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@result()",
+                      "Succeeded"
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Terminate": {
+                  "type": "Terminate",
+                  "inputs": {
+                    "runStatus": "Succeeded"
+                  },
+                  "runAfter": {}
+                }
               },
               "runAfter": {
-                "Create_or_update_document": [
+                "Scope": [
                   "Succeeded"
                 ]
+              },
+              "else": {
+                "actions": {
+                  "bjdlogAppLogger": {
+                    "type": "Workflow",
+                    "inputs": {
+                      "host": {
+                        "triggerName": "manual",
+                        "workflow": {
+                          "id": "/subscriptions/5cd8aef3-0105-48cd-99bf-f616497eab80/resourceGroups/DevSub01_EventHubs-BJD_RG/providers/Microsoft.Logic/workflows/bjdlogAppLogger"
+                        }
+                      },
+                      "body": {
+                        "body": "{ \n    \"id\": \"@{triggerBody()?['SystemProperties']?['PartitionKey']}\",\n    \"body\": \"this message failed\"\n}"
+                      }
+                    },
+                    "runAfter": {}
+                  },
+                  "Terminate_2": {
+                    "type": "Terminate",
+                    "inputs": {
+                      "runStatus": "Failed",
+                      "runError": {
+                        "code": "1024",
+                        "message": "Failed on insert"
+                      }
+                    },
+                    "runAfter": {
+                      "bjdlogAppLogger": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                }
               }
             }
           },

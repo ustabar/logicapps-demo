@@ -70,7 +70,8 @@
                 },
                 "path": "/dbs/@{encodeURIComponent('sample')}/colls/@{encodeURIComponent('events')}/docs"
               },
-              "runAfter": {}
+              "runAfter": {
+              }
             },
             "Terminate": {
               "type": "Terminate",
@@ -86,7 +87,8 @@
           },
           "parameters": {
             "$connections": {
-              "defaultValue": {},
+              "defaultValue": {
+              },
               "type": "Object"
             }
           },
@@ -117,7 +119,8 @@
             }
           },
           "contentVersion": "1.0.0.0",
-          "outputs": {}
+          "outputs": {
+          }
         },
         "parameters": {
           "$connections": {
@@ -173,5 +176,6 @@
       }
     }
   ],
-  "outputs": {}
+  "outputs": {
+  }
 }

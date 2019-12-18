@@ -26,76 +26,78 @@
                 "enableAutomaticFailover": false,
                 "enableMultipleWriteLocations": false,
                 "isVirtualNetworkFilterEnabled": false,
-                "virtualNetworkRules": [],
+                "virtualNetworkRules": [
+                ],
                 "databaseAccountOfferType": "Standard",
                 "consistencyPolicy": {
                     "defaultConsistencyLevel": "Session",
                     "maxIntervalInSeconds": 5,
                     "maxStalenessPrefix": 100
                 },
-                "capabilities": []
+                "capabilities": [
+                ]
             }
         },
-		{
-			"type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
-			"name": "[concat(parameters('databaseAccountName'), '/sql/sample')]",
-			"apiVersion": "2016-03-31",
-			"dependsOn": [
-				"[resourceId('Microsoft.DocumentDB/databaseAccounts/', parameters('databaseAccountName'))]"
-			],
-			"properties": {
-				"resource": {
-					"id": "sample"
-				}
-			}
-		},
-		{
-			"type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers",
-			"name": "[concat(parameters('databaseAccountName'), '/sql/sample/events')]",
-			"apiVersion": "2016-03-31",
-			"dependsOn": [
-				"[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', parameters('databaseAccountName'), 'sql', 'sample')]"
-			],
-			"properties": {
-				"resource": {
-					"id": "events",
-					"options": {
-						"throughput": "400"
-					},
-					"partitionKey": {
-						"paths": [
-							"/PartitionKey"
-						],
-						"kind": "Hash"
-					},
-					"indexingPolicy": {
-						"indexingMode": "consistent",
-						"includedPaths": [
-							{
-								"path": "/*",
-								"indexes": [
-									{
-										"kind": "Range",
-										"dataType": "number",
-										"precision": -1
-									},
-									{
-										"kind": "Range",
-										"dataType": "string",
-										"precision": -1
-									}
-								]
-							}
-						],
-						"excludedPaths": [
-							{
-								"path": "/MyPathToNotIndex/*"
-							}
-						]
-					}
-				}
-			}
-		},
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
+            "name": "[concat(parameters('databaseAccountName'), '/sql/sample')]",
+            "apiVersion": "2016-03-31",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/', parameters('databaseAccountName'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "sample"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers",
+            "name": "[concat(parameters('databaseAccountName'), '/sql/sample/events')]",
+            "apiVersion": "2016-03-31",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', parameters('databaseAccountName'), 'sql', 'sample')]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "events",
+                    "options": {
+                        "throughput": "400"
+                    },
+                    "partitionKey": {
+                        "paths": [
+                            "/PartitionKey"
+                        ],
+                        "kind": "Hash"
+                    },
+                    "indexingPolicy": {
+                        "indexingMode": "consistent",
+                        "includedPaths": [
+                            {
+                                "path": "/*",
+                                "indexes": [
+                                    {
+                                        "kind": "Range",
+                                        "dataType": "number",
+                                        "precision": -1
+                                    },
+                                    {
+                                        "kind": "Range",
+                                        "dataType": "string",
+                                        "precision": -1
+                                    }
+                                ]
+                            }
+                        ],
+                        "excludedPaths": [
+                            {
+                                "path": "/MyPathToNotIndex/*"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
         {
             "type": "Microsoft.EventHub/namespaces",
             "apiVersion": "2018-01-01-preview",
@@ -126,8 +128,10 @@
             "properties": {
                 "networkAcls": {
                     "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
-                    "ipRules": [],
+                    "virtualNetworkRules": [
+                    ],
+                    "ipRules": [
+                    ],
                     "defaultAction": "Allow"
                 },
                 "supportsHttpsTrafficOnly": true,
@@ -170,7 +174,8 @@
             ],
             "properties": {
                 "cors": {
-                    "corsRules": []
+                    "corsRules": [
+                    ]
                 },
                 "deleteRetentionPolicy": {
                     "enabled": false
@@ -215,7 +220,8 @@
                 "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('eventHubName'), 'hub001')]",
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('eventHubName'))]"
             ],
-            "properties": {}
+            "properties": {
+            }
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
@@ -226,7 +232,8 @@
                 "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('eventHubName'), 'hub001')]",
                 "[resourceId('Microsoft.EventHub/namespaces', parameters('eventHubName'))]"
             ],
-            "properties": {}
+            "properties": {
+            }
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
@@ -243,10 +250,10 @@
     ],
     "outputs": {
         "eventhubsConnectionString": {
-			"type": "string",
+            "type": "string",
             "value": "[listKeys(resourceId(concat('Microsoft.EventHub/namespaces/AuthorizationRules'),parameters('eventHubName'),'RootManageSharedAccessKey'),'2015-08-01').primaryConnectionString]"
         },
-        "documentdbAccessKey" : {
+        "documentdbAccessKey": {
             "type": "string",
             "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey]"
         }
